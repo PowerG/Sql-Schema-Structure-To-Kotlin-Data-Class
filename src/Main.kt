@@ -9,6 +9,7 @@ var kotlinDataType = ""
 var kotlinDataTypeDefaultValue = ""
 var indexOfSpaceAfterDataType = 0
 var canBeNull: Boolean = false;
+var firstLineHasBeenRead: Boolean = false;
 
 fun main(args: Array<String>) {
     var dataClassArrayList : ArrayList<String>
@@ -51,7 +52,7 @@ fun buildString(stringFromFile: String){
     string +=columnAnnotation
 
     //add (name ="
-    string +="""(name=""""
+    string +="""(name = """"
 
     //set and add table name
     tableName = getTableName(charListOfStringFromFile)
@@ -64,13 +65,13 @@ fun buildString(stringFromFile: String){
     string+=underScoreToCamelCase(tableName)
 
     //add :
-    string+=": "
+    string+=" : "
 
     //add dataType
     string+=getKotlinDataType(getDataTypeFromSql(charListOfStringFromFile,indexOfApostrpoheAfterTableName))
 
     //add default value
-    string+= "= $kotlinDataTypeDefaultValue"
+    string+= " = $kotlinDataTypeDefaultValue"
 
     //add the last comma
     string+= ","
@@ -78,9 +79,17 @@ fun buildString(stringFromFile: String){
     //add "@NotBlank " as postfix if sql schema has "NOT NULL"
     checkIfColumnCanBeNull(charListOfStringFromFile,getIndexOfSpaceAfterDataType(charListOfStringFromFile,indexAfterDataType))
 
-    var finalString : String
-    finalString = getNullableString(canBeNull)+string
+    var stringWithNullableString : String
+    stringWithNullableString = getNullableString(canBeNull)+string
 
+    var primaryIdString = ""
+
+    if (!firstLineHasBeenRead) {
+
+        primaryIdString = "@Id "// with this we assume only the first has the primary key
+        firstLineHasBeenRead = true
+    }
+    var finalString : String = """        """+primaryIdString+stringWithNullableString
     println(finalString)
 
 
@@ -108,14 +117,14 @@ fun underScoreToCamelCase(underScoreText: String): String {
     var camelCaseStringArray : ArrayList<String> = ArrayList()
     var previousCharWasAnUnderscore = false
     for (s in underScoreText) {
-        if(!s.toString().equals("_")){
-            if(previousCharWasAnUnderscore){
+        if (!s.toString().equals("_")) {
+            if (previousCharWasAnUnderscore){
                 camelCaseStringArray.add(s.toString().toUpperCase())
                 previousCharWasAnUnderscore = false
-            }else{
+            } else {
                 camelCaseStringArray.add(s.toString())
             }
-        }else{
+        } else {
             previousCharWasAnUnderscore = true
         }
     }
@@ -170,21 +179,45 @@ fun getKotlinDataType(dataTypeFromSql: String): String {
             kotlinDataType = "Int"
             kotlinDataTypeDefaultValue = "0"
         }
+        "tinyint" -> {
+            kotlinDataType = "Int"
+            kotlinDataTypeDefaultValue = "0"
+        }
+        "bigint" -> {
+            kotlinDataType = "BigInteger"
+            kotlinDataTypeDefaultValue = "BigInteger.ZERO"
+        }
         "varchar" -> {
             kotlinDataType = "String"
             kotlinDataTypeDefaultValue = """" """"
         }
-        "bigint" -> {
-            kotlinDataType = "BigInt"
-            kotlinDataTypeDefaultValue = "0"
+        "text" -> {
+            kotlinDataType = "String"
+            kotlinDataTypeDefaultValue = """" """"
+        }
+        "mediumtext" -> {
+            kotlinDataType = "String"
+            kotlinDataTypeDefaultValue = """" """"
+        }
+        "longtext" -> {
+            kotlinDataType = "String"
+            kotlinDataTypeDefaultValue = """" """"
         }
         "float" -> {
             kotlinDataType = "Float"
             kotlinDataTypeDefaultValue = "0.0f"
         }
-        "timestamp" -> { //TODO: Remember to insert a default value for each entry in each sql row entry before running this script. e.g timestamp (0) NULL" instead of "timestamp NULL"
+        "double" -> {
+            kotlinDataType = "Double"
+            kotlinDataTypeDefaultValue = "0.0"
+        }
+        "datetime" -> {
             kotlinDataType = "Date"
             kotlinDataTypeDefaultValue = "Date()"
+        }
+        "timestamp" -> {
+            kotlinDataType = "Date"
+            kotlinDataTypeDefaultValue = "Timestamp(Date().time)"
         }
         else ->{
             print("Data type not defined!!")
@@ -210,6 +243,8 @@ fun checkIfColumnCanBeNull(charListOfStringFromFile: ArrayList<String>, indexOfS
         i++
     }
 
+    //TODO: remember that this comes immediately after the data type (whether intiated liek int(11) or not- like int.) So you have to investigate and delete
+    //strings that will confuse the script, like "unsigned" which occassionally shows up right after the data type is defined
     when (nullOrNotNullStringArray.joinToString(separator = "")){
         "NOT" ->{
             canBeNull = false
@@ -218,6 +253,11 @@ fun checkIfColumnCanBeNull(charListOfStringFromFile: ArrayList<String>, indexOfS
             canBeNull = true
         }
         "NUL" ->{
+            canBeNull = true
+        }
+        "COL" -> { // TODO: Keep in mind, this was added as a hotfix for rows with "COLLATE". Most of them were nullable, so we need to look for all rows
+            //with "COLLATE" which may not be nullable (don't have the "DEFAULT NULL" property) and deal with them speciaily. For example
+            //all COLLATE entries which are not nullable can be not nullable on kotlin by replacing "COLLATE" with "NOT NULL" before running the script
             canBeNull = true
         }
         else-> {
@@ -230,7 +270,7 @@ fun getNullableString(canBeNull: Boolean) :String{
     var nullabeString = ""
 
     if(!canBeNull){
-        nullabeString = "@NotBlank"
+        nullabeString = "@NotBlank "
     }
 
     return nullabeString
