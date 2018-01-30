@@ -1,4 +1,7 @@
-`loan_application_id` int(11) NOT NULL AUTO_INCREMENT,
-`data` longtext NOT NULL utf8_bin NOT NULL,
-`last_update_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
- 
+`id` int(10) NOT NULL AUTO_INCREMENT,
+`statusCode` int(11) NOT NULL,
+`statusName` varchar(255) NOT NULL utf8_unicode_ci NOT NULL,
+`description` varchar(255) NOT NULL utf8_unicode_ci NOT NULL,
+
+
+

@@ -183,11 +183,23 @@ fun getKotlinDataType(dataTypeFromSql: String): String {
             kotlinDataType = "Int"
             kotlinDataTypeDefaultValue = "0"
         }
+        "smallint" -> {
+            kotlinDataType = "Int"
+            kotlinDataTypeDefaultValue = "0"
+        }
         "bigint" -> {
             kotlinDataType = "BigInteger"
             kotlinDataTypeDefaultValue = "BigInteger.ZERO"
         }
+        "decimal" -> {
+            kotlinDataType = "BigDecimal"
+            kotlinDataTypeDefaultValue = "BigDecimal.ZERO"
+        }
         "varchar" -> {
+            kotlinDataType = "String"
+            kotlinDataTypeDefaultValue = """" """"
+        }
+        "char" -> {
             kotlinDataType = "String"
             kotlinDataTypeDefaultValue = """" """"
         }
@@ -210,6 +222,10 @@ fun getKotlinDataType(dataTypeFromSql: String): String {
         "double" -> {
             kotlinDataType = "Double"
             kotlinDataTypeDefaultValue = "0.0"
+        }
+        "date" -> {
+            kotlinDataType = "Date"
+            kotlinDataTypeDefaultValue = "Date()"
         }
         "datetime" -> {
             kotlinDataType = "Date"
