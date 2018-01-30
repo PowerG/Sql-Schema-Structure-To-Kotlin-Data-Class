@@ -188,8 +188,8 @@ fun getKotlinDataType(dataTypeFromSql: String): String {
             kotlinDataTypeDefaultValue = "0"
         }
         "bigint" -> {
-            kotlinDataType = "BigInteger"
-            kotlinDataTypeDefaultValue = "BigInteger.ZERO"
+            kotlinDataType = "Long"
+            kotlinDataTypeDefaultValue = "0"
         }
         "decimal" -> {
             kotlinDataType = "BigDecimal"
@@ -197,23 +197,23 @@ fun getKotlinDataType(dataTypeFromSql: String): String {
         }
         "varchar" -> {
             kotlinDataType = "String"
-            kotlinDataTypeDefaultValue = """" """"
+            kotlinDataTypeDefaultValue = """"""""
         }
         "char" -> {
             kotlinDataType = "String"
-            kotlinDataTypeDefaultValue = """" """"
+            kotlinDataTypeDefaultValue = """"""""
         }
         "text" -> {
             kotlinDataType = "String"
-            kotlinDataTypeDefaultValue = """" """"
+            kotlinDataTypeDefaultValue = """"""""
         }
         "mediumtext" -> {
             kotlinDataType = "String"
-            kotlinDataTypeDefaultValue = """" """"
+            kotlinDataTypeDefaultValue = """"""""
         }
         "longtext" -> {
             kotlinDataType = "String"
-            kotlinDataTypeDefaultValue = """" """"
+            kotlinDataTypeDefaultValue = """"""""
         }
         "float" -> {
             kotlinDataType = "Float"
