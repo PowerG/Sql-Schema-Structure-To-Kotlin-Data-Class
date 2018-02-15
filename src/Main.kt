@@ -86,7 +86,7 @@ fun buildString(stringFromFile: String){
 
     if (!firstLineHasBeenRead) {
 
-        primaryIdString = "@Id "// with this we assume only the first has the primary key
+        primaryIdString = "@GeneratedValue(strategy = GenerationType.IDENTITY) @Id "// with this we assume only the first has the primary key
         firstLineHasBeenRead = true
     }
     var finalString : String = """        """+primaryIdString+stringWithNullableString
